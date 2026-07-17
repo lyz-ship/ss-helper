@@ -57,10 +57,12 @@
   function mdToHtml(text) {
     if (!text) return '';
     return text
-      // 转义HTML
+      // 转义HTML（但图片和链接的<>要保留）
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
+      // 图片 ![alt](url)
+      .replace(/!\[(.*?)\]\((.*?)\)/g, '<img src="$2" alt="$1" style="max-width:100%;border-radius:12px;margin:8px 0;" loading="lazy">')
       // 粗体 **text**
       .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
       // 行内代码 `code`
