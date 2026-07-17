@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>知识库管理 - SS学长来帮你</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* ---------- 管理后台独立样式 ---------- */
+    body {
+      overflow: auto;
+      height: auto;
+      background: #F0F2F5;
+    }
+
+    .admin-container {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 16px;
+      padding-top: calc(16px + env(safe-area-inset-top, 0px));
+    }
+
+    .admin-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .admin-header h1 {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .admin-header .back-link {
+      font-size: 14px;
+      color: var(--primary);
+      text-decoration: none;
+    }
+
+    /* 登录表单 */
+    .login-box {
+      background: white;
+      border-radius: var(--radius-md);
+      padding: 32px 20px;
+      box-shadow: var(--shadow-sm);
+      max-width: 360px;
+      margin: 60px auto;
+      text-align: center;
+    }
+
+    .login-box h2 {
+      font-size: 18px;
+      margin-bottom: 20px;
+      color: var(--text-primary);
+    }
+
+    .login-box input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      font-size: 15px;
+      outline: none;
+      margin-bottom: 12px;
+      box-sizing: border-box;
+    }
+
+    .login-box input:focus {
+      border-color: var(--primary);
+    }
+
+    .login-box button {
+      width: 100%;
+      padding: 12px;
+      background: var(--primary-gradient);
+      color: white;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .login-error {
+      color: #CF1322;
+      font-size: 14px;
+      margin-top: 8px;
+    }
+
+    /* 卡片样式 */
+    .card {
+      background: white;
+      border-radius: var(--radius-md);
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .card h3 {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: var(--text-primary);
+    }
+
+    /* 统计卡片 */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .stat-item {
+      background: white;
+      border-radius: var(--radius-sm);
+      padding: 16px;
+      text-align: center;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .stat-number {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .stat-label {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+
+    /* 上传区域 */
+    .upload-area {
+      border: 2px dashed var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 30px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-bottom: 12px;
+    }
+
+    .upload-area:hover, .upload-area.dragover {
+      border-color: var(--primary);
+      background: var(--primary-light);
+    }
+
+    .upload-area .icon {
+      font-size: 36px;
+      margin-bottom: 8px;
+    }
+
+    .upload-area p {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .upload-area .hint {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* 文档列表 */
+    .doc-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .doc-item:last-child {
+      border-bottom: none;
+    }
+
+    .doc-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .doc-title {
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--text-primary);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .doc-meta {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .doc-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+    }
+
+    .btn-delete {
+      background: #FFF2F0;
+      color: #CF1322;
+    }
+
+    .btn-delete:active {
+      background: #FFCCC7;
+    }
+
+    /* 加载状态 */
+    .loading {
+      text-align: center;
+      padding: 20px;
+      color: var(--text-muted);
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 2px solid #ddd;
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-right: 6px;
+      vertical-align: middle;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* 进度条 */
+    .progress-bar {
+      width: 100%;
+      height: 4px;
+      background: var(--border-color);
+      border-radius: 2px;
+      margin-top: 8px;
+      overflow: hidden;
+    }
+
+    .progress-bar .fill {
+      height: 100%;
+      background: var(--primary-gradient);
+      width: 0%;
+      border-radius: 2px;
+      transition: width 0.3s;
+    }
+
+    /* 空状态 */
+    .empty-state {
+      text-align: center;
+      padding: 30px 0;
+      color: var(--text-muted);
+    }
+
+    .empty-state .icon {
+      font-size: 40px;
+      margin-bottom: 8px;
+    }
+
+    /* 状态标签 */
+    .status-badge {
+      display: inline-block;
+      font-size: 12px;
+      padding: 2px 8px;
+      border-radius: 10px;
+    }
+
+    .status-badge.active {
+      background: #F6FFED;
+      color: #52C41A;
+    }
+
+    /* Toast */
+    .admin-toast {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.8);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 14px;
+      z-index: 9999;
+      animation: toastIn 0.3s ease-out;
+      max-width: 90vw;
+      text-align: center;
+    }
+
+    .admin-toast.error {
+      background: #CF1322;
+    }
+
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+      to { opacity: 1; transform: translateX(-50%) translateY(0); }
+    }
+
+    /* 暗色模式覆盖 */
+    @media (prefers-color-scheme: dark) {
+      .card, .stat-item, .login-box {
+        background: #1E2A4A;
+      }
+
+      .upload-area {
+        border-color: #2A2A5A;
+      }
+
+      .upload-area:hover, .upload-area.dragover {
+        background: #1A2A5E;
+      }
+
+      .btn-delete {
+        background: #3A1A1A;
+        color: #FF6B6B;
+      }
+
+      .status-badge.active {
+        background: #1A3A1A;
+      }
+    }
+
+    /* 移动端优化 */
+    @media (max-width: 480px) {
+      .admin-container {
+        padding: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-container" id="app">
+    <!-- ===== 顶部 ===== -->
+    <div class="admin-header">
+      <h1>📚 知识库管理</h1>
+      <a href="/" class="back-link">← 返回聊天</a>
+    </div>
+
+    <!-- ===== 登录界面 ===== -->
+    <div class="login-box" id="loginBox">
+      <h2>🔐 管理员登录</h2>
+      <input type="password" id="passwordInput" placeholder="请输入管理员密码" autocomplete="current-password">
+      <button id="loginBtn">登录</button>
+      <div class="login-error" id="loginError"></div>
+    </div>
+
+    <!-- ===== 管理界面（登录后显示） ===== -->
+    <div id="adminPanel" style="display:none;">
+      <!-- 统计 -->
+      <div class="stats-grid">
+        <div class="stat-item">
+          <div class="stat-number" id="docCount">0</div>
+          <div class="stat-label">已上传文档</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number" id="chunkCount">0</div>
+          <div class="stat-label">知识片段</div>
+        </div>
+      </div>
+
+      <!-- 上传文档 -->
+      <div class="card">
+        <h3>📤 上传文档</h3>
+        <div class="upload-area" id="uploadArea">
+          <div class="icon">📄</div>
+          <p>点击或拖拽上传文档</p>
+          <p class="hint">支持 TXT / PDF，单个文件最大 20MB</p>
+          <input type="file" id="fileInput" accept=".txt,.pdf" style="display:none;">
+        </div>
+        <div id="uploadProgress" style="display:none;">
+          <p style="font-size:14px;color:var(--text-secondary);" id="uploadStatus">正在处理...</p>
+          <div class="progress-bar"><div class="fill" id="progressFill"></div></div>
+        </div>
+        <div style="margin-top:12px;">
+          <label style="font-size:14px;color:var(--text-secondary);">可选 - 自定义文档名称：</label>
+          <input type="text" id="docTitleInput" placeholder="留空则使用文件名" style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:6px;font-size:14px;margin-top:4px;box-sizing:border-box;">
+        </div>
+      </div>
+
+      <!-- 文档列表 -->
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <h3 style="margin:0;">📋 文档列表</h3>
+          <button id="refreshBtn" style="background:none;border:none;color:var(--primary);font-size:14px;cursor:pointer;">🔄 刷新</button>
+        </div>
+        <div id="docList">
+          <div class="empty-state">
+            <div class="icon">📭</div>
+            <p>还没有上传任何文档</p>
+            <p style="font-size:13px;color:var(--text-muted);">上传《2026年新生入学须知》《学校规章制度》等文件</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 使用提示 -->
+      <div class="card" style="background:var(--primary-light);border:1px solid var(--primary);">
+        <h3 style="color:var(--primary-dark);">💡 使用说明</h3>
+        <ol style="padding-left:18px;font-size:14px;color:var(--text-secondary);line-height:1.8;">
+          <li>上传校本文档（TXT/PDF），系统自动分块并向量化</li>
+          <li>新生提问时，系统先检索知识库，再让AI结合知识回答</li>
+          <li>建议上传：新生入学须知、学校规章制度、专业介绍等</li>
+          <li>文档内容越详细，AI回答越准确</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      'use strict';
+
+      // ===== 状态 =====
+      let token = localStorage.getItem('ss_admin_token') || '';
+      const API_BASE = '';
+
+      // ===== DOM =====
+      const loginBox = document.getElementById('loginBox');
+      const adminPanel = document.getElementById('adminPanel');
+      const passwordInput = document.getElementById('passwordInput');
+      const loginBtn = document.getElementById('loginBtn');
+      const loginError = document.getElementById('loginError');
+      const docList = document.getElementById('docList');
+      const docCount = document.getElementById('docCount');
+      const chunkCount = document.getElementById('chunkCount');
+      const fileInput = document.getElementById('fileInput');
+      const uploadArea = document.getElementById('uploadArea');
+      const uploadProgress = document.getElementById('uploadProgress');
+      const uploadStatus = document.getElementById('uploadStatus');
+      const progressFill = document.getElementById('progressFill');
+      const docTitleInput = document.getElementById('docTitleInput');
+      const refreshBtn = document.getElementById('refreshBtn');
+
+      // ===== 工具 =====
+      function showToast(msg, isError = false) {
+        const toast = document.createElement('div');
+        toast.className = 'admin-toast' + (isError ? ' error' : '');
+        toast.textContent = msg;
+        document.body.appendChild(toast);
+        setTimeout(() => {
+          toast.style.opacity = '0';
+          toast.style.transition = 'opacity 0.3s';
+          setTimeout(() => toast.remove(), 300);
+        }, 3000);
+      }
+
+      function apiHeaders() {
+        return {
+          'Content-Type': 'application/json',
+          'X-Admin-Token': token,
+        };
+      }
+
+      // ===== 登录 =====
+      async function doLogin() {
+        const pwd = passwordInput.value.trim();
+        if (!pwd) return;
+
+        loginBtn.disabled = true;
+        loginBtn.textContent = '登录中...';
+        loginError.textContent = '';
+
+        try {
+          const res = await fetch(`${API_BASE}/api/admin/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ password: pwd }),
+          });
+
+          const data = await res.json();
+
+          if (data.success) {
+            token = data.token;
+            localStorage.setItem('ss_admin_token', token);
+            showLoginSuccess();
+          } else {
+            loginError.textContent = data.error || '登录失败';
+          }
+        } catch (err) {
+          loginError.textContent = '网络错误，请检查服务器是否运行';
+        } finally {
+          loginBtn.disabled = false;
+          loginBtn.textContent = '登录';
+        }
+      }
+
+      function showLoginSuccess() {
+        loginBox.style.display = 'none';
+        adminPanel.style.display = 'block';
+        loadStats();
+        loadDocuments();
+      }
+
+      // ===== 加载统计 =====
+      async function loadStats() {
+        try {
+          const res = await fetch(`${API_BASE}/api/admin/stats`, {
+            headers: apiHeaders(),
+          });
+          const data = await res.json();
+          if (data.documentCount !== undefined) {
+            docCount.textContent = data.documentCount;
+          }
+          if (data.chunkCount !== undefined) {
+            chunkCount.textContent = data.chunkCount;
+          }
+        } catch (err) {
+          console.error('加载统计失败:', err);
+        }
+      }
+
+      // ===== 加载文档列表 =====
+      async function loadDocuments() {
+        try {
+          docList.innerHTML = '<div class="loading"><span class="spinner"></span>加载中...</div>';
+
+          const res = await fetch(`${API_BASE}/api/admin/documents`, {
+            headers: apiHeaders(),
+          });
+          const data = await res.json();
+
+          if (!data.documents || data.documents.length === 0) {
+            docList.innerHTML = `
+              <div class="empty-state">
+                <div class="icon">📭</div>
+                <p>还没有上传任何文档</p>
+                <p style="font-size:13px;color:var(--text-muted);">上传《2026年新生入学须知》《学校规章制度》等文件</p>
+              </div>`;
+            return;
+          }
+
+          docList.innerHTML = data.documents.map(doc => `
+            <div class="doc-item">
+              <div class="doc-info">
+                <div class="doc-title">📄 ${doc.title}</div>
+                <div class="doc-meta">
+                  ${doc.chunkCount || 0} 个知识片段 · ${new Date(doc.uploadedAt).toLocaleString('zh-CN')}
+                </div>
+              </div>
+              <div class="doc-actions">
+                <button class="btn-icon btn-delete" onclick="deleteDoc('${doc.id}')">🗑️</button>
+              </div>
+            </div>
+          `).join('');
+        } catch (err) {
+          console.error('加载文档列表失败:', err);
+          docList.innerHTML = '<div class="empty-state"><p>⚠️ 加载失败，请刷新重试</p></div>';
+        }
+      }
+
+      // ===== 删除文档 =====
+      window.deleteDoc = async function(docId) {
+        if (!confirm('确定要删除这个文档及其所有知识片段吗？')) return;
+
+        try {
+          const res = await fetch(`${API_BASE}/api/admin/documents/${docId}`, {
+            method: 'DELETE',
+            headers: apiHeaders(),
+          });
+          const data = await res.json();
+
+          if (data.success) {
+            showToast(data.message);
+            loadDocuments();
+            loadStats();
+          } else {
+            showToast(data.error || '删除失败', true);
+          }
+        } catch (err) {
+          showToast('删除失败: ' + err.message, true);
+        }
+      };
+
+      // ===== 上传文档 =====
+      async function uploadFile(file) {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const customTitle = docTitleInput.value.trim();
+        if (customTitle) {
+          formData.append('title', customTitle);
+        }
+
+        // 显示进度
+        uploadProgress.style.display = 'block';
+        uploadStatus.textContent = `正在处理: ${file.name} ...`;
+        progressFill.style.width = '30%';
+        fileInput.disabled = true;
+
+        try {
+          const res = await fetch(`${API_BASE}/api/admin/documents/upload`, {
+            method: 'POST',
+            headers: {
+              'X-Admin-Token': token,
+            },
+            body: formData,
+          });
+
+          progressFill.style.width = '90%';
+          const data = await res.json();
+
+          if (data.success) {
+            progressFill.style.width = '100%';
+            uploadStatus.textContent = `✅ ${data.message}`;
+            showToast(data.message);
+            // 刷新列表
+            setTimeout(() => {
+              loadDocuments();
+              loadStats();
+              uploadProgress.style.display = 'none';
+              progressFill.style.width = '0%';
+              docTitleInput.value = '';
+            }, 1500);
+          } else {
+            uploadStatus.textContent = `❌ ${data.error || '上传失败'}`;
+            showToast(data.error || '上传失败', true);
+            setTimeout(() => {
+              uploadProgress.style.display = 'none';
+              progressFill.style.width = '0%';
+            }, 3000);
+          }
+        } catch (err) {
+          uploadStatus.textContent = `❌ 上传失败: ${err.message}`;
+          showToast('上传失败: ' + err.message, true);
+          setTimeout(() => {
+            uploadProgress.style.display = 'none';
+            progressFill.style.width = '0%';
+          }, 3000);
+        } finally {
+          fileInput.disabled = false;
+          fileInput.value = '';
+        }
+      }
+
+      // ===== 事件绑定 =====
+      loginBtn.addEventListener('click', doLogin);
+      passwordInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') doLogin();
+      });
+
+      // 上传区域点击
+      uploadArea.addEventListener('click', () => fileInput.click());
+
+      // 文件选择
+      fileInput.addEventListener('change', (e) => {
+        if (e.target.files.length > 0) {
+          uploadFile(e.target.files[0]);
+        }
+      });
+
+      // 拖拽上传
+      uploadArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadArea.classList.add('dragover');
+      });
+
+      uploadArea.addEventListener('dragleave', () => {
+        uploadArea.classList.remove('dragover');
+      });
+
+      uploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadArea.classList.remove('dragover');
+        if (e.dataTransfer.files.length > 0) {
+          const file = e.dataTransfer.files[0];
+          const ext = '.' + file.name.split('.').pop().toLowerCase();
+          if (ext === '.txt' || ext === '.pdf') {
+            uploadFile(file);
+          } else {
+            showToast('仅支持 TXT 和 PDF 文件', true);
+          }
+        }
+      });
+
+      // 刷新
+      refreshBtn.addEventListener('click', () => {
+        loadDocuments();
+        loadStats();
+        showToast('已刷新');
+      });
+
+      // ===== 自动登录 =====
+      if (token) {
+        // 尝试用存储的token自动登录
+        (async () => {
+          try {
+            const res = await fetch(`${API_BASE}/api/admin/stats`, {
+              headers: apiHeaders(),
+            });
+            if (res.ok) {
+              showLoginSuccess();
+            } else {
+              localStorage.removeItem('ss_admin_token');
+              token = '';
+            }
+          } catch (e) {
+            // 服务器未运行，保留登录界面
+          }
+        })();
+      }
+    })();
+  </script>
+</body>
+</html>

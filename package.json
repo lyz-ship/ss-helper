@@ -1,0 +1,18 @@
+{
+  "name": "ss-helper",
+  "version": "1.0.0",
+  "description": "SS学长来帮你 - 四川化工职业技术学院AI校园助手",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "axios": "^1.7.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.0",
+    "express": "^4.19.0",
+    "multer": "^1.4.5-lts.1",
+    "pdf-parse": "^1.1.1"
+  }
+}

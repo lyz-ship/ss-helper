@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="format-detection" content="telephone=no, email=no, address=no">
+
+  <!-- ===== Open Graph 标签（微信分享等） ===== -->
+  <meta property="og:title" content="SS学长来帮你 - 化院AI小助手">
+  <meta property="og:description" content="四川化工职业技术学院新生快问快答，像聊天一样获取校园信息！">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://via.placeholder.com/300x300/4F8CFF/FFFFFF?text=SS">
+  <meta property="og:url" content="https://你的域名.com">
+  <meta property="og:site_name" content="SS学长来帮你">
+  <meta name="description" content="四川化工职业技术学院AI校园助手 - SS学长来帮你，新生快问快答，像聊天一样获取信息">
+
+  <!-- ===== 微信浏览器专用标签 ===== -->
+  <meta name="wx_title" content="SS学长来帮你">
+  <meta name="wx_desc" content="四川化工职业技术学院新生快问快答！">
+  <meta name="wx_url" content="">
+
+  <title>SS学长来帮你 - 化院AI小助手</title>
+
+  <!-- ===== CSS ===== -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- ===== 应用容器 ===== -->
+  <div class="app-container">
+    <!-- ===== 顶部标题栏 ===== -->
+    <header class="header">
+      <div class="header-title">SS学长来帮你</div>
+      <div class="header-subtitle">四川化工职业技术学院 · AI小助手</div>
+      <div class="header-actions">
+        <button class="header-btn" id="copyLinkBtn" title="分享链接" aria-label="分享链接">
+          📤
+        </button>
+        <button class="header-btn" id="clearBtn" title="清空聊天" aria-label="清空聊天">
+          🗑️
+        </button>
+      </div>
+    </header>
+
+    <!-- ===== 聊天消息区域 ===== -->
+    <div class="chat-area" id="chatArea"></div>
+
+    <!-- ===== 底部输入区域 ===== -->
+    <div class="input-area">
+      <div class="input-wrapper">
+        <textarea
+          id="messageInput"
+          placeholder="输入你想问的问题…"
+          rows="1"
+          aria-label="输入消息"
+        ></textarea>
+      </div>
+      <button class="send-btn" id="sendBtn" aria-label="发送">
+        ▶
+      </button>
+    </div>
+  </div>
+
+  <!-- ===== "添加到收藏"悬浮提示 ===== -->
+  <div class="fav-tip hide" id="favTip" style="display:none;">
+    <span>⭐ 添加到收藏，随时回来问学长</span>
+    <span class="close-tip" id="closeFavTip">✕</span>
+  </div>
+
+  <!-- ===== 分享引导弹窗 ===== -->
+  <div class="share-guide-overlay hide" id="shareGuide" style="display:none;">
+    <div class="share-guide-content">
+      <h3>📲 收藏 SS学长</h3>
+      <p>
+        点击右上角的 <strong>···</strong><br>
+        选择 <strong>收藏</strong>，随时回来提问！
+      </p>
+      <p style="font-size:13px;color:#999;">
+        也可以复制链接分享给同学
+      </p>
+      <div style="display:flex;gap:10px;justify-content:center;">
+        <button class="share-guide-btn" id="shareGuideCopy" style="background:var(--primary);">复制链接</button>
+        <button class="share-guide-btn" id="shareGuideClose" style="background:#eee;color:#333;">知道了</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== JavaScript ===== -->
+  <script src="js/app.js"></script>
+</body>
+</html>
