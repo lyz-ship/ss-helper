@@ -30,6 +30,10 @@ class RAGEngine {
     this.topK = options.topK || 7;
     this.minScore = options.minScore || 0.3;
 
+    // 问答缓存（LRU，最多500条）
+    this.answerCache = new Map();
+    this.CACHE_MAX = 500;
+
     // 系统人格设定 - 钢子版：开朗搞笑大二学长
     this.systemPrompt = `你是"SS学长"（你也可以叫"钢子"），四川化工职业技术学院的大二学长，专门服务新生和在校同学。
 
@@ -337,6 +341,46 @@ class RAGEngine {
   }
 
   // ============================================================
+  // 问答缓存（省 80% API 费用）
+  // ============================================================
+
+  /** 生成缓存 key：问题 + 检索结果 hash */
+  _cacheKey(message, retrieved) {
+    const chunks = retrieved.map(r => r.source + ':' + r.content.slice(0, 200)).join('|');
+    // 简单 hash
+    let hash = 0;
+    const str = message + chunks;
+    for (let i = 0; i < str.length; i++) {
+      const c = str.charCodeAt(i);
+      hash = ((hash << 5) - hash) + c;
+      hash |= 0;
+    }
+    return hash;
+  }
+
+  /** 从缓存获取 */
+  _cacheGet(key) {
+    if (this.answerCache.has(key)) {
+      const entry = this.answerCache.get(key);
+      // 更新 LRU 顺序
+      this.answerCache.delete(key);
+      this.answerCache.set(key, entry);
+      return entry;
+    }
+    return null;
+  }
+
+  /** 写入缓存 */
+  _cacheSet(key, value) {
+    // LRU 淘汰
+    if (this.answerCache.size >= this.CACHE_MAX) {
+      const oldestKey = this.answerCache.keys().next().value;
+      this.answerCache.delete(oldestKey);
+    }
+    this.answerCache.set(key, value);
+  }
+
+  // ============================================================
   // 核心流程：聊天（非流式）
   // ============================================================
 
@@ -355,6 +399,14 @@ class RAGEngine {
       }
     } catch (err) {
       console.warn('[RAG] 知识库检索失败:', err.message);
+    }
+
+    // 缓存检查：同一个问题 + 相同的检索结果 → 直接返回缓存
+    const cacheKey = this._cacheKey(message, retrievedChunks);
+    const cached = this._cacheGet(cacheKey);
+    if (cached && history.length <= 1) {
+      console.log('[RAG] 缓存命中:', message.slice(0, 30));
+      return { reply: cached, sources, cached: true };
     }
 
     const messages = [{ role: 'system', content: this.systemPrompt }];
@@ -400,6 +452,11 @@ class RAGEngine {
       reply += '\n\n---\n📚 **信息来源**：' + sources.join('、');
     }
 
+    // 写入缓存（非追问场景）
+    if (history.length <= 1) {
+      this._cacheSet(cacheKey, reply);
+    }
+
     return { reply, sources, retrieved: retrievedChunks };
   }
 
@@ -422,6 +479,19 @@ class RAGEngine {
       }
     } catch (err) {
       console.warn('[RAG] 知识库检索失败:', err.message);
+    }
+
+    // 缓存检查
+    const cacheKey = this._cacheKey(message, retrievedChunks);
+    const cached = this._cacheGet(cacheKey);
+    if (cached && history.length <= 1) {
+      console.log('[RAG] 流式缓存命中:', message.slice(0, 30));
+      // 逐字输出缓存内容（模拟流式效果）
+      for (const char of cached) {
+        yield { type: 'token', data: char };
+      }
+      yield { type: 'done' };
+      return;
     }
 
     yield { type: 'sources', data: sources };
@@ -489,8 +559,13 @@ class RAGEngine {
       if (sources.length > 0 && !fullReply.includes('📚') && !fullReply.includes('来源')) {
         const sourceNote = '\n\n---\n📚 **信息来源**：' + sources.join('、');
         yield { type: 'token', data: sourceNote };
+        fullReply += sourceNote;
       }
       yield { type: 'done', data: null };
+      // 流式完成后写入缓存
+      if (history.length <= 1 && fullReply) {
+        this._cacheSet(cacheKey, fullReply);
+      }
     } catch (err) {
       console.error('[RAG] 流式API调用失败:', err.message);
       yield { type: 'error', data: 'AI回复生成失败，请检查API密钥和网络连接' };
