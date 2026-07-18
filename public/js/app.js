@@ -61,8 +61,28 @@
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
-      // 图片 ![alt](url)
-      .replace(/!\[(.*?)\]\((.*?)\)/g, '<img src="$2" alt="$1" style="max-width:100%;border-radius:12px;margin:8px 0;" loading="lazy">')
+      // 图片 ![alt](url) — 可点击放大 + 路径补全（兜底）
+      // 兼容：英文括号 ()、全角中文括号 （）、中文感叹号 ！
+      .replace(/[！!]\s*\[(.*?)\]\s*[（(](.*?)[)）]/g, (m, alt, url) => {
+        let fixedUrl = url.trim();
+        // 兜底1：缺 /images/ 前缀时补上
+        if (!fixedUrl.startsWith('/images/') && !fixedUrl.startsWith('http') && !fixedUrl.startsWith('data:')) {
+          fixedUrl = '/images/' + fixedUrl.replace(/^\.?\//, '');
+        }
+        // 兜底2：缺扩展名时自动加 .jpeg
+        if (fixedUrl.startsWith('/images/') && !/\.[a-zA-Z]+$/.test(fixedUrl.split('/').pop())) {
+          fixedUrl = fixedUrl + '.jpeg';
+        }
+        return `<img src="${fixedUrl}" alt="${alt}" class="chat-image" data-src="${fixedUrl}" style="max-width:100%;border-radius:12px;margin:8px 0;cursor:pointer;" loading="lazy" onerror="this.style.opacity=0.3;this.alt='图片加载失败'">`;
+      })
+      // 兜底3：识别"配图：xxx" / "插入图片：xxx" / "图片：xxx" 的纯文字描述，转成图片
+      .replace(/[（(]\s*(?:配图|插入图片|插入配图|图片|配|图|\[图片\]|\[配图\]|\[图\])\s*[:：]?\s*(\/?(?:images\/)?[a-zA-Z0-9_\-]+\.(?:jpg|jpeg|png))\s*[)）]/gi, (m, url) => {
+        let fixedUrl = url.trim();
+        if (!fixedUrl.startsWith('/images/') && !fixedUrl.startsWith('http') && !fixedUrl.startsWith('data:')) {
+          fixedUrl = '/images/' + fixedUrl.replace(/^\.?\//, '');
+        }
+        return `<img src="${fixedUrl}" alt="" class="chat-image" data-src="${fixedUrl}" style="max-width:100%;border-radius:12px;margin:8px 0;cursor:pointer;" loading="lazy" onerror="this.style.opacity=0.3;this.alt='图片加载失败'">`;
+      })
       // 粗体 **text**
       .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
       // 行内代码 `code`
@@ -648,7 +668,34 @@
       }
     }, 10000);
 
+    // 初始化图片查看器（点击放大+下载）
+    initImageViewer();
+
     console.log('[SS学长] 初始化完成 🚀');
+  }
+
+  /** 初始化图片查看器（点击放大） */
+  function initImageViewer() {
+    const viewer = document.getElementById('imageViewer');
+    const img = document.getElementById('imageViewerImg');
+    const bg = document.getElementById('imageViewerBg');
+    const closeBtn = document.getElementById('imageViewerClose');
+
+    document.getElementById('chatArea').addEventListener('click', (e) => {
+      const target = e.target.closest('.chat-image');
+      if (!target) return;
+      const src = target.getAttribute('data-src') || target.src;
+      img.src = src;
+      viewer.classList.remove('hide');
+      viewer.style.display = 'flex';
+    });
+
+    const closeViewer = () => {
+      viewer.classList.add('hide');
+      setTimeout(() => { viewer.style.display = 'none'; }, 300);
+    };
+    bg.addEventListener('click', closeViewer);
+    closeBtn.addEventListener('click', closeViewer);
   }
 
   // DOM Ready 后初始化
