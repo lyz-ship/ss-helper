@@ -73,6 +73,17 @@
       .replace(/https?:\/\/[^\s<]+/g, url => `<a href="${url}" target="_blank" rel="noopener">${url}</a>`);
   }
 
+  /** 前端防注入：清洗用户输入，去掉HTML标签和危险字符 */
+  function sanitizeInput(text) {
+    if (!text) return '';
+    return text
+      .replace(/<[^>]*>/g, '')       // 去掉 HTML 标签
+      .replace(/[<>"'`]/g, '')       // 去掉特殊字符
+      .replace(/javascript:/gi, '')   // 去掉 js 协议
+      .replace(/on\w+\s*=/gi, '')    // 去掉 on* 事件属性
+      .trim();
+  }
+
   /** 显示Toast提示（兼容微信浏览器） */
   function showToast(msg, duration = 2000) {
     const toast = document.createElement('div');
