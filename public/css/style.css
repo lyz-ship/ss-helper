@@ -669,25 +669,3 @@ body {
 .chat-image:active {
   opacity: 0.7;
 }
-
-/* ============================================================
-   开学倒计时
-   ============================================================ */
-.countdown-bar {
-  padding: 8px 16px;
-  text-align: center;
-  background: linear-gradient(135deg, #FFF8E1, #FFF3CD);
-  border-bottom: 1px solid #FFEAA7;
-  font-size: 13px;
-  color: #B8860B;
-  font-weight: 500;
-  letter-spacing: 0.5px;
-}
-
-@media (prefers-color-scheme: dark) {
-  .countdown-bar {
-    background: linear-gradient(135deg, #2A2000, #3D2E00);
-    border-bottom: 1px solid #5A4300;
-    color: #FFD700;
-  }
-}
