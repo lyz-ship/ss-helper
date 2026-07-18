@@ -69,9 +69,9 @@
         if (!fixedUrl.startsWith('/images/') && !fixedUrl.startsWith('http') && !fixedUrl.startsWith('data:')) {
           fixedUrl = '/images/' + fixedUrl.replace(/^\.?\//, '');
         }
-        // 兜底2：缺扩展名时自动加 .webp
+        // 兜底2：缺扩展名时自动加 .jpeg
         if (fixedUrl.startsWith('/images/') && !/\.[a-zA-Z]+$/.test(fixedUrl.split('/').pop())) {
-          fixedUrl = fixedUrl + '.webp';
+          fixedUrl = fixedUrl + '.jpeg';
         }
         return `<img src="${fixedUrl}" alt="${alt}" class="chat-image" data-src="${fixedUrl}" style="max-width:100%;border-radius:12px;margin:8px 0;cursor:pointer;" loading="lazy" onerror="this.style.opacity=0.3;this.alt='图片加载失败'">`;
       })
@@ -668,31 +668,10 @@
       }
     }, 10000);
 
-    // 初始化倒计时
-    initCountdown();
     // 初始化图片查看器（点击放大+下载）
     initImageViewer();
 
     console.log('[SS学长] 初始化完成 🚀');
-  }
-
-  /** 开学倒计时：显示距9月2号还有XX天 */
-  function initCountdown() {
-    function update() {
-      const el = document.getElementById('countdownText');
-      if (!el) return;
-      const target = new Date('2026-09-02T00:00:00+08:00');
-      const now = new Date();
-      const diff = target - now;
-      if (diff <= 0) {
-        el.textContent = '🎉 新生已报到，欢迎来到化院！';
-        return;
-      }
-      const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
-      el.textContent = `距离开学报到还有 ${days} 天`;
-    }
-    update();
-    setInterval(update, 86400000);
   }
 
   /** 初始化图片查看器（点击放大） */
