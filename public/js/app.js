@@ -670,6 +670,8 @@
 
     // 初始化图片查看器（点击放大+下载）
     initImageViewer();
+    // 初始化微信二维码
+    initWechat();
 
     console.log('[SS学长] 初始化完成 🚀');
   }
@@ -696,6 +698,29 @@
     };
     bg.addEventListener('click', closeViewer);
     closeBtn.addEventListener('click', closeViewer);
+  }
+
+  /** 初始化微信二维码弹窗 */
+  function initWechat() {
+    const btn = document.getElementById('wechatBtn');
+    const overlay = document.getElementById('wechatOverlay');
+    const bg = document.getElementById('wechatBg');
+    const closeBtn = document.getElementById('wechatClose');
+
+    if (!btn) return;
+
+    const open = () => {
+      overlay.classList.remove('hide');
+      overlay.style.display = 'flex';
+    };
+    const close = () => {
+      overlay.classList.add('hide');
+      setTimeout(() => { overlay.style.display = 'none'; }, 300);
+    };
+
+    btn.addEventListener('click', open);
+    bg.addEventListener('click', close);
+    closeBtn.addEventListener('click', close);
   }
 
   // DOM Ready 后初始化
