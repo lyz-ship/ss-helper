@@ -15,12 +15,12 @@
     maxHistory: 100,
     welcomeMessage: '👋 科技改变生活，SS永伴你左右\n\n**直接打字问我吧，就跟聊天一样！** 😎',
     suggestions: [
-      '报道要带啥证件',
-      '四人间怎么抢',
-      '校园地图',
-      '开学要准备什么',
-      '床上六件套值得买吗',
-      '报道路线',
+      '📋 报道要带啥证件',
+      '🏠 四人间怎么抢',
+      '🗺️ 校园地图',
+      '🎒 开学要准备什么',
+      '🛏️ 床上六件套值得买吗',
+      '🚗 报道路线',
     ],
   };
 
@@ -152,31 +152,58 @@
     return div;
   }
 
-  /** 添加欢迎消息 */
+  /** 添加欢迎消息（居中布局） */
   function showWelcome() {
     const div = document.createElement('div');
-    div.className = 'message ai welcome-message';
+    div.className = 'welcome-layout';
     div.id = 'welcomeMsg';
 
-    const bubble = document.createElement('div');
-    bubble.className = 'bubble';
-    bubble.innerHTML = mdToHtml(CONFIG.welcomeMessage);
+    // 头像
+    const avatarWrap = document.createElement('div');
+    avatarWrap.className = 'welcome-avatar';
+    avatarWrap.innerHTML = '<div class="welcome-avatar-inner"></div><div class="online-dot"></div>';
 
-    // 添加建议问题
-    const suggestionsDiv = document.createElement('div');
-    suggestionsDiv.className = 'suggestions';
+    // 标题
+    const title = document.createElement('div');
+    title.className = 'welcome-title';
+    title.textContent = 'SS学长';
+
+    // 副标题
+    const sub1 = document.createElement('div');
+    sub1.className = 'welcome-sub';
+    sub1.textContent = '四川化工职业技术学院';
+    const sub2 = document.createElement('div');
+    sub2.className = 'welcome-sub';
+    sub2.textContent = '新生专属AI助手 · 24h在线';
+
+    // 免责声明
+    const disc = document.createElement('div');
+    disc.className = 'welcome-disclaimer';
+    disc.textContent = '⚠️ AI内容仅供参考，有疑惑的地方找学长本人';
+
+    // 气泡提示
+    const wechatHint = document.createElement('div');
+    wechatHint.className = 'welcome-wechat-hint';
+    wechatHint.textContent = '⬆️ 右上角点击气泡图标添加本人';
+
+    // 快捷问题
+    const suggestWrap = document.createElement('div');
+    suggestWrap.className = 'welcome-suggestions';
     CONFIG.suggestions.forEach(text => {
       const chip = document.createElement('button');
-      chip.className = 'suggestion-chip';
+      chip.className = 'welcome-chip';
       chip.textContent = text;
-      chip.addEventListener('click', () => {
-        sendMessage(text);
-      });
-      suggestionsDiv.appendChild(chip);
+      chip.addEventListener('click', () => sendMessage(text));
+      suggestWrap.appendChild(chip);
     });
 
-    bubble.appendChild(suggestionsDiv);
-    div.appendChild(bubble);
+    div.appendChild(avatarWrap);
+    div.appendChild(title);
+    div.appendChild(sub1);
+    div.appendChild(sub2);
+    div.appendChild(disc);
+    div.appendChild(wechatHint);
+    div.appendChild(suggestWrap);
     chatArea.appendChild(div);
   }
 
