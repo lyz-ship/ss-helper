@@ -32,6 +32,9 @@
       <div class="header-title">SS学长来帮你</div>
       <div class="header-subtitle">四川化工职业技术学院 · AI小助手</div>
       <div class="header-actions">
+        <button class="header-btn" id="wechatBtn" title="添加学长微信" aria-label="添加学长微信">
+          💬
+        </button>
         <button class="header-btn" id="copyLinkBtn" title="分享链接" aria-label="分享链接">
           📤
         </button>
@@ -90,6 +93,21 @@
     <div class="image-viewer-container">
       <button class="image-viewer-close" id="imageViewerClose">✕</button>
       <img class="image-viewer-img" id="imageViewerImg" src="" alt="">
+    </div>
+  </div>
+
+  <!-- ===== 微信二维码弹窗 ===== -->
+  <div class="wechat-overlay hide" id="wechatOverlay" style="display:none;">
+    <div class="wechat-bg" id="wechatBg"></div>
+    <div class="wechat-modal">
+      <button class="wechat-close" id="wechatClose">✕</button>
+      <div class="wechat-icon">💬</div>
+      <h3>添加学长微信</h3>
+      <p>有问题随时问，学长在线解答</p>
+      <div class="wechat-qr-wrapper">
+        <img src="/images/wechat-qrcode.webp" alt="学长微信二维码" class="wechat-qr-img">
+      </div>
+      <p class="wechat-tip">📱 长按二维码识别，添加微信</p>
     </div>
   </div>
 
