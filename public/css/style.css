@@ -73,9 +73,10 @@ body {
 .header {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   height: var(--header-height);
   padding-top: var(--safe-top);
+  padding-left: 16px;
   background: var(--primary-gradient);
   color: white;
   position: relative;
@@ -87,6 +88,8 @@ body {
   font-size: 18px;
   font-weight: 600;
   letter-spacing: 0.5px;
+  text-align: left;
+  margin-right: auto;
 }
 
 .header-subtitle {
@@ -94,8 +97,7 @@ body {
   opacity: 0.85;
   position: absolute;
   bottom: 6px;
-  left: 50%;
-  transform: translateX(-50%);
+  left: 16px;
   white-space: nowrap;
 }
 
@@ -786,4 +788,46 @@ body {
 }
 #wechatBtn:hover {
   color: #07C160;
+}
+
+/* 微信按钮旁的提示语 + 箭头 */
+.wechat-hint {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 0 6px;
+  font-size: 11px;
+  color: rgba(255,255,255,0.95);
+  white-space: nowrap;
+  animation: hintPulse 2s ease-in-out infinite;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.15);
+}
+
+@keyframes hintPulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.05); opacity: 0.85; }
+}
+
+.wechat-hint-arrow {
+  font-size: 14px;
+  display: inline-block;
+  animation: arrowBounce 1.5s ease-in-out infinite;
+}
+
+@keyframes arrowBounce {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(-3px); }
+}
+
+.wechat-hint-text {
+  font-weight: 500;
+}
+
+@media (max-width: 480px) {
+  .wechat-hint-text {
+    display: none;
+  }
+  .wechat-hint {
+    font-size: 16px;
+  }
 }
