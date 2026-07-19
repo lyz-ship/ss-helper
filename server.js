@@ -40,8 +40,21 @@ const rag = new RAGEngine({
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 
-// 托管前端静态文件
-app.use(express.static(path.join(__dirname, 'public')));
+// 托管前端静态文件（缓存策略：图片强缓存1天，其他不缓存）
+app.use(express.static(path.join(__dirname, 'public'), {
+  maxAge: 0,
+  setHeaders: (res, filePath) => {
+    // 图片文件：强缓存24小时 + ETag
+    if (/\.(webp|jpe?g|png|gif|ico)$/i.test(filePath)) {
+      res.setHeader('Cache-Control', 'public, max-age=86400, immutable');
+      res.setHeader('Expires', new Date(Date.now() + 86400000).toUTCString());
+    }
+    // HTML/CSS/JS：不缓存，强制从服务器获取最新
+    else if (/\.(html?|css|js)$/i.test(filePath)) {
+      res.setHeader('Cache-Control', 'no-store, must-revalidate');
+    }
+  }
+}));
 
 // 文件上传配置
 const storage = multer.diskStorage({
